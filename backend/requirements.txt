@@ -18,11 +18,9 @@ apscheduler==3.10.4
 pandas==2.1.4
 numpy==1.26.3
 
-# ML/Predictions (Phase 3)
-# prophet==1.1.5
-# scikit-learn==1.4.0
-# transformers==4.36.2
-# torch==2.1.2
+# ML/Predictions (Phase 3) - Optional, uncomment for better predictions
+# pip install prophet  # Facebook Prophet for time series
+# pip install transformers torch  # HuggingFace for sentiment (advanced)
 
 # Utilities
 pydantic==2.5.3

@@ -1,17 +1,45 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { DollarSign, Euro, Bell } from 'lucide-react';
+import { DollarSign, Euro, Bell, RefreshCw } from 'lucide-react';
 import ExchangeCard from '@/components/ExchangeCard';
-import RateChart from '@/components/RateChart';
+import PredictionChart from '@/components/PredictionChart';
 import StatsCard from '@/components/StatsCard';
-import { getCurrentRate, getRateHistory, refreshRate, ExchangeRate, ExchangeRateHistory } from '@/lib/api';
+import NewsFeed from '@/components/NewsFeed';
+import SentimentGauge from '@/components/SentimentGauge';
+import PredictionCard from '@/components/PredictionCard';
+import SignalBadge from '@/components/SignalBadge';
+import {
+  getCurrentRate,
+  getRateHistory,
+  refreshRate,
+  getNewsFeed,
+  getSentimentSummary,
+  getPrediction,
+  getQuickSignal,
+  ExchangeRate,
+  ExchangeRateHistory,
+  NewsArticle,
+  SentimentSummary,
+  Prediction,
+  QuickSignal
+} from '@/lib/api';
 
 export default function Home() {
+  // State
   const [rate, setRate] = useState<ExchangeRate | null>(null);
   const [history, setHistory] = useState<ExchangeRateHistory | null>(null);
+  const [news, setNews] = useState<NewsArticle[]>([]);
+  const [sentiment, setSentiment] = useState<SentimentSummary | null>(null);
+  const [prediction, setPrediction] = useState<Prediction | null>(null);
+  const [signal, setSignal] = useState<QuickSignal | null>(null);
+
+  // Loading states
   const [loadingRate, setLoadingRate] = useState(true);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [loadingNews, setLoadingNews] = useState(true);
+  const [loadingPrediction, setLoadingPrediction] = useState(true);
+
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
@@ -42,12 +70,47 @@ export default function Home() {
     }
   }, []);
 
+  const fetchNews = useCallback(async () => {
+    try {
+      setLoadingNews(true);
+      const [feedData, sentimentData] = await Promise.all([
+        getNewsFeed(15, 48),
+        getSentimentSummary(24)
+      ]);
+      setNews(feedData.articles);
+      setSentiment(sentimentData);
+    } catch (err) {
+      console.error('Error fetching news:', err);
+    } finally {
+      setLoadingNews(false);
+    }
+  }, []);
+
+  const fetchPrediction = useCallback(async () => {
+    try {
+      setLoadingPrediction(true);
+      const [predData, signalData] = await Promise.all([
+        getPrediction(30),
+        getQuickSignal()
+      ]);
+      setPrediction(predData);
+      setSignal(signalData);
+    } catch (err) {
+      console.error('Error fetching prediction:', err);
+    } finally {
+      setLoadingPrediction(false);
+    }
+  }, []);
+
   const handleRefresh = async () => {
     try {
       setLoadingRate(true);
       await refreshRate();
-      await fetchRate();
-      await fetchHistory();
+      await Promise.all([
+        fetchRate(),
+        fetchHistory(),
+        fetchPrediction()
+      ]);
     } catch (err) {
       setError('Error al actualizar');
       console.error(err);
@@ -55,23 +118,40 @@ export default function Home() {
   };
 
   useEffect(() => {
+    // Initial fetch
     fetchRate();
     fetchHistory();
+    fetchNews();
+    fetchPrediction();
 
-    // Auto-refresh every 5 minutes
-    const interval = setInterval(() => {
+    // Auto-refresh rates every 5 minutes
+    const rateInterval = setInterval(() => {
       fetchRate();
     }, 5 * 60 * 1000);
 
-    return () => clearInterval(interval);
-  }, [fetchRate, fetchHistory]);
+    // Auto-refresh news every 30 minutes
+    const newsInterval = setInterval(() => {
+      fetchNews();
+    }, 30 * 60 * 1000);
+
+    // Auto-refresh predictions every hour
+    const predictionInterval = setInterval(() => {
+      fetchPrediction();
+    }, 60 * 60 * 1000);
+
+    return () => {
+      clearInterval(rateInterval);
+      clearInterval(newsInterval);
+      clearInterval(predictionInterval);
+    };
+  }, [fetchRate, fetchHistory, fetchNews, fetchPrediction]);
 
   return (
-    <main className="min-h-screen p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
+    <main className="min-h-screen p-4 md:p-6 bg-gray-50">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <header className="mb-8">
-          <div className="flex items-center justify-between">
+        <header className="mb-6">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
               <div className="flex items-center">
                 <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
@@ -83,17 +163,31 @@ export default function Home() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Forex Monitor</h1>
-                <p className="text-sm text-gray-500">USD/EUR en tiempo real</p>
+                <p className="text-sm text-gray-500">USD/EUR con predicciones ML</p>
               </div>
             </div>
 
-            <button
-              className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-              title="Configurar alertas (proximamente)"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="hidden sm:inline">Alertas</span>
-            </button>
+            <div className="flex items-center gap-3">
+              {/* Quick Signal Badge */}
+              <SignalBadge signal={signal} loading={loadingPrediction} compact />
+
+              <button
+                onClick={handleRefresh}
+                disabled={loadingRate}
+                className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+                title="Actualizar todo"
+              >
+                <RefreshCw className={`w-4 h-4 ${loadingRate ? 'animate-spin' : ''}`} />
+              </button>
+
+              <button
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                title="Configurar alertas (proximamente)"
+              >
+                <Bell className="w-4 h-4" />
+                <span className="hidden sm:inline">Alertas</span>
+              </button>
+            </div>
           </div>
 
           {lastUpdate && (
@@ -110,41 +204,42 @@ export default function Home() {
           </div>
         )}
 
-        {/* Main content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left column - Rate card */}
-          <div className="lg:col-span-1 space-y-6">
+        {/* Main Grid Layout */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+          {/* Left Column - Rate, Stats, Sentiment */}
+          <div className="xl:col-span-3 space-y-6">
             <ExchangeCard
               rate={rate}
               loading={loadingRate}
               onRefresh={handleRefresh}
             />
             <StatsCard history={history} loading={loadingHistory} />
+            <SentimentGauge summary={sentiment} loading={loadingNews} />
           </div>
 
-          {/* Right column - Chart */}
-          <div className="lg:col-span-2">
-            <RateChart history={history} loading={loadingHistory} />
+          {/* Center Column - Chart & Prediction */}
+          <div className="xl:col-span-5 space-y-6">
+            <PredictionChart
+              history={history}
+              prediction={prediction}
+              loading={loadingHistory || loadingPrediction}
+            />
+            <PredictionCard
+              prediction={prediction}
+              loading={loadingPrediction}
+            />
+          </div>
+
+          {/* Right Column - News */}
+          <div className="xl:col-span-4">
+            <NewsFeed articles={news} loading={loadingNews} />
           </div>
         </div>
 
-        {/* Info section */}
-        <section className="mt-8 p-6 bg-blue-50 rounded-xl border border-blue-100">
-          <h2 className="text-lg font-semibold text-blue-900 mb-2">
-            Proximamente
-          </h2>
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>Alertas personalizadas por email y push</li>
-            <li>Predicciones con Machine Learning</li>
-            <li>Noticias relevantes con analisis de sentimiento</li>
-            <li>Calendario de eventos economicos (Fed, BCE)</li>
-          </ul>
-        </section>
-
         {/* Footer */}
         <footer className="mt-8 text-center text-sm text-gray-400">
-          <p>Datos proporcionados por Frankfurter API (BCE)</p>
-          <p>Actualizacion cada 30 minutos</p>
+          <p>Cambio: Frankfurter (BCE) | Noticias: GNews/NewsData | ML: Prophet/Trend</p>
+          <p>Actualizacion: Tasa 5min | Noticias 30min | Prediccion 1h</p>
         </footer>
       </div>
     </main>

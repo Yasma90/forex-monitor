@@ -5,7 +5,7 @@ import logging
 
 from .config import get_settings
 from .models.database import init_db
-from .api.routes import exchange_router
+from .api.routes import exchange_router, news_router, prediction_router
 
 # Configure logging
 logging.basicConfig(
@@ -47,6 +47,8 @@ app.add_middleware(
 
 # Include routers
 app.include_router(exchange_router)
+app.include_router(news_router)
+app.include_router(prediction_router)
 
 
 @app.get("/")
@@ -66,6 +68,8 @@ async def health():
         "status": "healthy",
         "database": "connected",
         "services": {
-            "exchange_rate": "active"
+            "exchange_rate": "active",
+            "news": "active",
+            "prediction": "active"
         }
     }
