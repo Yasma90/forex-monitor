@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { DollarSign, Euro, Bell, RefreshCw } from 'lucide-react';
+import { DollarSign, Euro, Bell, RefreshCw, Download } from 'lucide-react';
 import ExchangeCard from '@/components/ExchangeCard';
 import PredictionChart from '@/components/PredictionChart';
 import StatsCard from '@/components/StatsCard';
@@ -9,6 +9,7 @@ import NewsFeed from '@/components/NewsFeed';
 import SentimentGauge from '@/components/SentimentGauge';
 import PredictionCard from '@/components/PredictionCard';
 import SignalBadge from '@/components/SignalBadge';
+import AlertsPanel from '@/components/AlertsPanel';
 import {
   getCurrentRate,
   getRateHistory,
@@ -17,6 +18,7 @@ import {
   getSentimentSummary,
   getPrediction,
   getQuickSignal,
+  checkAlerts,
   ExchangeRate,
   ExchangeRateHistory,
   NewsArticle,
@@ -24,6 +26,7 @@ import {
   Prediction,
   QuickSignal
 } from '@/lib/api';
+import { registerServiceWorker, isPWAInstalled, showNotification } from '@/lib/notifications';
 
 export default function Home() {
   // State
@@ -34,14 +37,33 @@ export default function Home() {
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [signal, setSignal] = useState<QuickSignal | null>(null);
 
-  // Loading states
+  // UI State
   const [loadingRate, setLoadingRate] = useState(true);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [loadingNews, setLoadingNews] = useState(true);
   const [loadingPrediction, setLoadingPrediction] = useState(true);
-
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [alertsPanelOpen, setAlertsPanelOpen] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  // Register service worker on mount
+  useEffect(() => {
+    registerServiceWorker();
+    setIsInstalled(isPWAInstalled());
+
+    // Listen for install prompt
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
 
   const fetchRate = useCallback(async () => {
     try {
@@ -102,6 +124,19 @@ export default function Home() {
     }
   }, []);
 
+  const handleCheckAlerts = useCallback(async () => {
+    try {
+      const triggered = await checkAlerts();
+      if (triggered.length > 0) {
+        for (const t of triggered) {
+          await showNotification(t.alert.name, { body: t.message });
+        }
+      }
+    } catch (err) {
+      console.error('Error checking alerts:', err);
+    }
+  }, []);
+
   const handleRefresh = async () => {
     try {
       setLoadingRate(true);
@@ -117,6 +152,16 @@ export default function Home() {
     }
   };
 
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const result = await installPrompt.userChoice;
+    if (result.outcome === 'accepted') {
+      setInstallPrompt(null);
+      setIsInstalled(true);
+    }
+  };
+
   useEffect(() => {
     // Initial fetch
     fetchRate();
@@ -127,6 +172,7 @@ export default function Home() {
     // Auto-refresh rates every 5 minutes
     const rateInterval = setInterval(() => {
       fetchRate();
+      handleCheckAlerts(); // Check alerts on each rate update
     }, 5 * 60 * 1000);
 
     // Auto-refresh news every 30 minutes
@@ -144,7 +190,7 @@ export default function Home() {
       clearInterval(newsInterval);
       clearInterval(predictionInterval);
     };
-  }, [fetchRate, fetchHistory, fetchNews, fetchPrediction]);
+  }, [fetchRate, fetchHistory, fetchNews, fetchPrediction, handleCheckAlerts]);
 
   return (
     <main className="min-h-screen p-4 md:p-6 bg-gray-50">
@@ -167,9 +213,21 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {/* Quick Signal Badge */}
               <SignalBadge signal={signal} loading={loadingPrediction} compact />
+
+              {/* Install PWA button */}
+              {installPrompt && !isInstalled && (
+                <button
+                  onClick={handleInstall}
+                  className="flex items-center gap-1 px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+                  title="Instalar app"
+                >
+                  <Download className="w-4 h-4" />
+                  <span className="hidden sm:inline text-sm">Instalar</span>
+                </button>
+              )}
 
               <button
                 onClick={handleRefresh}
@@ -181,8 +239,9 @@ export default function Home() {
               </button>
 
               <button
+                onClick={() => setAlertsPanelOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                title="Configurar alertas (proximamente)"
+                title="Configurar alertas"
               >
                 <Bell className="w-4 h-4" />
                 <span className="hidden sm:inline">Alertas</span>
@@ -193,6 +252,7 @@ export default function Home() {
           {lastUpdate && (
             <p className="text-xs text-gray-400 mt-2">
               Ultima actualizacion: {lastUpdate.toLocaleString('es-ES')}
+              {isInstalled && <span className="ml-2 text-purple-500">(PWA)</span>}
             </p>
           )}
         </header>
@@ -242,6 +302,13 @@ export default function Home() {
           <p>Actualizacion: Tasa 5min | Noticias 30min | Prediccion 1h</p>
         </footer>
       </div>
+
+      {/* Alerts Panel Modal */}
+      <AlertsPanel
+        isOpen={alertsPanelOpen}
+        onClose={() => setAlertsPanelOpen(false)}
+        currentRate={rate?.rate || null}
+      />
     </main>
   );
 }

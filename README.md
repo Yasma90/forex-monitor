@@ -131,8 +131,31 @@ pip install prophet
 - [x] **Fase 1:** MVP - Tipo de cambio + Grafico
 - [x] **Fase 2:** Noticias + Analisis de sentimiento
 - [x] **Fase 3:** Predicciones ML + Senales
-- [ ] **Fase 4:** Alertas + PWA completo
+- [x] **Fase 4:** Alertas + PWA completo
 - [ ] **Fase 5:** Refinamiento y optimizacion
+
+## Sistema de Alertas
+
+### Tipos de alertas disponibles
+- **Precio sube a...** - Se activa cuando el tipo de cambio supera un umbral
+- **Precio baja a...** - Se activa cuando el tipo de cambio cae bajo un umbral
+- **Cambio % en 24h** - Se activa si hay un movimiento mayor al X% en el dia
+- **Cambio de sentimiento** - Se activa ante cambios en el sentimiento de noticias
+- **Noticias de impacto** - Se activa ante noticias de alto impacto
+
+### Caracteristicas
+- Alertas recurrentes o de una sola vez
+- Cooldown configurable entre activaciones
+- Notificaciones push en el navegador
+- Verificacion automatica cada 5 minutos
+
+## PWA (Progressive Web App)
+
+La aplicacion se puede instalar como app nativa:
+- En Chrome/Edge: Clic en "Instalar" en la barra de direcciones o boton morado
+- En Safari iOS: Compartir > Agregar a pantalla de inicio
+- Funciona offline con datos en cache
+- Recibe notificaciones push
 
 ## Requisitos
 

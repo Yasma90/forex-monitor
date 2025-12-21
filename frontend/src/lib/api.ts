@@ -183,3 +183,105 @@ export async function getQuickSignal(): Promise<QuickSignal> {
   }
   return res.json();
 }
+
+// Alerts API types
+export type AlertType = 'price_above' | 'price_below' | 'percent_change' | 'sentiment' | 'news_impact';
+export type AlertStatus = 'active' | 'triggered' | 'paused' | 'expired';
+
+export interface Alert {
+  id: number;
+  name: string;
+  alert_type: AlertType;
+  base_currency: string;
+  target_currency: string;
+  threshold_value: number;
+  status: AlertStatus;
+  is_recurring: boolean;
+  cooldown_minutes: number;
+  notify_push: boolean;
+  notify_sound: boolean;
+  created_at: string;
+  last_triggered_at: string | null;
+  expires_at: string | null;
+}
+
+export interface AlertCreate {
+  name: string;
+  alert_type: AlertType;
+  threshold_value: number;
+  base_currency?: string;
+  target_currency?: string;
+  is_recurring?: boolean;
+  cooldown_minutes?: number;
+  notify_push?: boolean;
+  notify_sound?: boolean;
+}
+
+export interface AlertTemplate {
+  name: string;
+  description: string;
+  config: Partial<AlertCreate>;
+}
+
+export interface TriggeredAlert {
+  alert: Alert;
+  current_value: number;
+  message: string;
+  triggered_at: string;
+}
+
+export async function getAlerts(includeInactive: boolean = false): Promise<Alert[]> {
+  const res = await fetch(
+    `${API_BASE}/api/alerts/?include_inactive=${includeInactive}`,
+    { cache: 'no-store' }
+  );
+  if (!res.ok) throw new Error('Failed to fetch alerts');
+  return res.json();
+}
+
+export async function createAlert(data: AlertCreate): Promise<Alert> {
+  const res = await fetch(`${API_BASE}/api/alerts/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Failed to create alert');
+  return res.json();
+}
+
+export async function deleteAlert(id: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/alerts/${id}`, {
+    method: 'DELETE'
+  });
+  if (!res.ok) throw new Error('Failed to delete alert');
+}
+
+export async function pauseAlert(id: number): Promise<Alert> {
+  const res = await fetch(`${API_BASE}/api/alerts/${id}/pause`, {
+    method: 'POST'
+  });
+  if (!res.ok) throw new Error('Failed to pause alert');
+  return res.json();
+}
+
+export async function resumeAlert(id: number): Promise<Alert> {
+  const res = await fetch(`${API_BASE}/api/alerts/${id}/resume`, {
+    method: 'POST'
+  });
+  if (!res.ok) throw new Error('Failed to resume alert');
+  return res.json();
+}
+
+export async function checkAlerts(): Promise<TriggeredAlert[]> {
+  const res = await fetch(`${API_BASE}/api/alerts/check`, {
+    method: 'POST'
+  });
+  if (!res.ok) throw new Error('Failed to check alerts');
+  return res.json();
+}
+
+export async function getAlertTemplates(): Promise<AlertTemplate[]> {
+  const res = await fetch(`${API_BASE}/api/alerts/templates/common`);
+  if (!res.ok) throw new Error('Failed to fetch templates');
+  return res.json();
+}
