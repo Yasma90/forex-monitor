@@ -95,7 +95,7 @@ class SentimentAnalyzer:
                 intensifier_next = True
                 continue
 
-            multiplier = 1.5 if words[i-1] in self.INTENSIFIERS if i > 0 else 1.0
+            multiplier = 1.5 if (i > 0 and words[i-1] in self.INTENSIFIERS) else 1.0
 
             if word in self.POSITIVE_WORDS:
                 if intensifier_next:

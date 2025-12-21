@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from sqlalchemy import select, func
+from sqlalchemy import select, func, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
@@ -106,3 +106,56 @@ class ExchangeRateRepository:
             "count": row.count,
             "period_days": days
         }
+
+    async def cleanup_old_rates(self, keep_days: int = 365) -> int:
+        """
+        Remove exchange rates older than keep_days.
+        Returns count of deleted records.
+        """
+        cutoff = datetime.utcnow() - timedelta(days=keep_days)
+
+        result = await self.db.execute(
+            delete(ExchangeRate).where(ExchangeRate.timestamp < cutoff)
+        )
+        await self.db.commit()
+
+        return result.rowcount
+
+    async def get_daily_rates(
+        self,
+        base: str = "USD",
+        target: str = "EUR",
+        days: int = 30
+    ) -> list[dict]:
+        """
+        Get one rate per day (most recent for each day).
+        More efficient for long periods than get_history.
+        """
+        start_date = datetime.utcnow() - timedelta(days=days)
+
+        # Use subquery to get max timestamp per day
+        daily_subq = (
+            select(
+                func.date(ExchangeRate.timestamp).label("date"),
+                func.max(ExchangeRate.timestamp).label("max_ts")
+            )
+            .where(ExchangeRate.base_currency == base)
+            .where(ExchangeRate.target_currency == target)
+            .where(ExchangeRate.timestamp >= start_date)
+            .group_by(func.date(ExchangeRate.timestamp))
+            .subquery()
+        )
+
+        result = await self.db.execute(
+            select(ExchangeRate)
+            .join(
+                daily_subq,
+                ExchangeRate.timestamp == daily_subq.c.max_ts
+            )
+            .order_by(ExchangeRate.timestamp.asc())
+        )
+
+        return [
+            {"date": r.timestamp.strftime("%Y-%m-%d"), "rate": r.rate}
+            for r in result.scalars().all()
+        ]

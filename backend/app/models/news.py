@@ -32,6 +32,8 @@ class NewsArticle(Base):
     __table_args__ = (
         Index('ix_news_published_at', 'published_at'),
         Index('ix_news_sentiment', 'sentiment_label'),
+        Index('ix_news_published_sentiment', 'published_at', 'sentiment_label'),
+        Index('ix_news_published_relevance', 'published_at', 'relevance_score'),
     )
 
 

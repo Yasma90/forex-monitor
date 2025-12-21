@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, Float, String, DateTime, Boolean, Enum as SQLEnum
+from sqlalchemy import Column, Integer, Float, String, DateTime, Boolean, Enum as SQLEnum, Index
 from sqlalchemy.orm import Mapped, mapped_column
 from pydantic import BaseModel
 from typing import Optional
@@ -56,6 +56,12 @@ class Alert(Base):
     # User identifier (for multi-user support later)
     user_id: Mapped[str] = mapped_column(String(100), default="default")
 
+    __table_args__ = (
+        Index('ix_alerts_status', 'status'),
+        Index('ix_alerts_user_status', 'user_id', 'status'),
+        Index('ix_alerts_expires', 'expires_at'),
+    )
+
 
 class AlertHistory(Base):
     """History of triggered alerts"""
@@ -66,6 +72,11 @@ class AlertHistory(Base):
     triggered_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     trigger_value: Mapped[float] = mapped_column(Float, nullable=False)
     message: Mapped[str] = mapped_column(String(500), nullable=False)
+
+    __table_args__ = (
+        Index('ix_alert_history_alert_id', 'alert_id'),
+        Index('ix_alert_history_triggered_at', 'triggered_at'),
+    )
 
 
 # Pydantic schemas
