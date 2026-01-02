@@ -38,7 +38,7 @@ if not exist "backend\venv" (
 
 echo [2/4] Instalando dependencias del backend...
 call backend\venv\Scripts\activate.bat
-pip install -q -r backend\requirements.txt
+pip install --index-url https://pypi.org/simple/ -q -r backend\requirements.txt
 
 echo [3/4] Instalando dependencias del frontend...
 cd frontend
@@ -52,8 +52,8 @@ cd ..
 echo [4/4] Iniciando servidores...
 echo.
 
-:: Start backend in new window
-start "Forex Monitor - Backend" cmd /k "cd /d "%ROOT_DIR%backend" && call venv\Scripts\activate.bat && uvicorn app.main:app --reload --port 8000"
+:: Start backend in new window (port 8001 to avoid conflicts)
+start "Forex Monitor - Backend" cmd /k "cd /d "%ROOT_DIR%backend" && call venv\Scripts\activate.bat && uvicorn app.main:app --reload --port 8001"
 
 :: Wait for backend
 echo       Esperando backend (3s)...
@@ -69,9 +69,9 @@ echo.
 echo  ====================================
 echo     Servidores iniciados:
 echo  ------------------------------------
-echo     Backend:  http://localhost:8000
+echo     Backend:  http://localhost:8001
 echo     Frontend: http://localhost:3000
-echo     API Docs: http://localhost:8000/docs
+echo     API Docs: http://localhost:8001/docs
 echo  ====================================
 echo.
 echo  Presiona cualquier tecla para abrir el navegador...
