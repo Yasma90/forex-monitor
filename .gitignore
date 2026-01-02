@@ -43,6 +43,7 @@ yarn-error.log*
 .next/
 out/
 package-lock.json
+next-env.d.ts
 
 # IDE
 .vscode/
