@@ -64,18 +64,18 @@ function CurrencyDropdown({
 
   return (
     <div className="relative" ref={ref}>
-      <label className="text-xs text-gray-500 mb-1 block">{label}</label>
+      <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{label}</label>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors min-w-[140px]"
+        className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-300 dark:hover:border-gray-600 transition-colors min-w-[140px]"
       >
         <span className="text-lg">{selected?.flag}</span>
-        <span className="font-medium">{value}</span>
-        <ChevronDown className={`w-4 h-4 ml-auto transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="font-medium text-gray-900 dark:text-white">{value}</span>
+        <ChevronDown className={`w-4 h-4 ml-auto text-gray-500 dark:text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 max-h-64 overflow-y-auto">
+        <div className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 max-h-64 overflow-y-auto">
           {options.map((currency) => (
             <button
               key={currency.code}
@@ -83,13 +83,13 @@ function CurrencyDropdown({
                 onChange(currency.code);
                 setIsOpen(false);
               }}
-              className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 transition-colors ${
-                currency.code === value ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
+              className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                currency.code === value ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'
               }`}
             >
               <span className="text-lg">{currency.flag}</span>
               <span className="font-medium">{currency.code}</span>
-              <span className="text-gray-500 text-xs truncate">{currency.name}</span>
+              <span className="text-gray-500 dark:text-gray-400 text-xs truncate">{currency.name}</span>
             </button>
           ))}
         </div>
@@ -116,10 +116,10 @@ export default function CurrencySelector({
 
       <button
         onClick={onSwap}
-        className="p-2 mb-0.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+        className="p-2 mb-0.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
         title="Intercambiar divisas"
       >
-        <ArrowLeftRight className="w-4 h-4 text-gray-600" />
+        <ArrowLeftRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
       </button>
 
       <CurrencyDropdown
