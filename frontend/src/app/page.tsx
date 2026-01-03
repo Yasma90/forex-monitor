@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { DollarSign, Euro, Bell, RefreshCw, Download, ArrowLeftRight } from 'lucide-react';
+import { DollarSign, Euro, Bell, RefreshCw, Download } from 'lucide-react';
 import ExchangeCard from '@/components/ExchangeCard';
 import PredictionChart from '@/components/PredictionChart';
 import StatsCard from '@/components/StatsCard';
@@ -10,6 +10,7 @@ import SentimentGauge from '@/components/SentimentGauge';
 import PredictionCard from '@/components/PredictionCard';
 import SignalBadge from '@/components/SignalBadge';
 import AlertsPanel from '@/components/AlertsPanel';
+import ExportMenu from '@/components/ExportMenu';
 import {
   getCurrentRate,
   getRateHistory,
@@ -238,6 +239,12 @@ export default function Home() {
                   <span className="hidden sm:inline text-sm">Instalar</span>
                 </button>
               )}
+
+              <ExportMenu
+                baseCurrency={baseCurrency}
+                targetCurrency={targetCurrency}
+                disabled={loadingHistory}
+              />
 
               <button
                 onClick={handleRefresh}

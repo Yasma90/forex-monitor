@@ -62,6 +62,85 @@ export async function refreshRate(
   return res.json();
 }
 
+export type ExportFormat = 'csv' | 'json' | 'excel';
+
+async function downloadFile(res: Response, defaultFilename: string): Promise<void> {
+  const disposition = res.headers.get('Content-Disposition');
+  let filename = defaultFilename;
+  if (disposition) {
+    const match = disposition.match(/filename=(.+)/);
+    if (match) filename = match[1];
+  }
+
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+}
+
+export async function exportToCSV(
+  base: string = 'USD',
+  target: string = 'EUR',
+  days: number = 30
+): Promise<void> {
+  const res = await fetch(
+    `${API_BASE}/api/exchange/export/csv?base=${base}&target=${target}&days=${days}`
+  );
+  if (!res.ok) {
+    throw new Error('Failed to export CSV');
+  }
+  await downloadFile(res, `forex_${base}_${target}_${days}d.csv`);
+}
+
+export async function exportToJSON(
+  base: string = 'USD',
+  target: string = 'EUR',
+  days: number = 30
+): Promise<void> {
+  const res = await fetch(
+    `${API_BASE}/api/exchange/export/json?base=${base}&target=${target}&days=${days}`
+  );
+  if (!res.ok) {
+    throw new Error('Failed to export JSON');
+  }
+  await downloadFile(res, `forex_${base}_${target}_${days}d.json`);
+}
+
+export async function exportToExcel(
+  base: string = 'USD',
+  target: string = 'EUR',
+  days: number = 30
+): Promise<void> {
+  const res = await fetch(
+    `${API_BASE}/api/exchange/export/excel?base=${base}&target=${target}&days=${days}`
+  );
+  if (!res.ok) {
+    throw new Error('Failed to export Excel');
+  }
+  await downloadFile(res, `forex_${base}_${target}_${days}d.xlsx`);
+}
+
+export async function exportData(
+  format: ExportFormat,
+  base: string = 'USD',
+  target: string = 'EUR',
+  days: number = 30
+): Promise<void> {
+  switch (format) {
+    case 'csv':
+      return exportToCSV(base, target, days);
+    case 'json':
+      return exportToJSON(base, target, days);
+    case 'excel':
+      return exportToExcel(base, target, days);
+  }
+}
+
 // News API types
 export interface NewsArticle {
   id: number;
