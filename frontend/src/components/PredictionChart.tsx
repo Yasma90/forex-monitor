@@ -79,17 +79,7 @@ export default function PredictionChart({ history, prediction, loading }: Predic
   const isDark = theme === 'dark';
   const [showBrush, setShowBrush] = useState(false);
 
-  if (loading && !history) {
-    return (
-      <div className={`rounded-xl p-6 h-96 ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
-        <div className="animate-pulse h-full flex items-center justify-center">
-          <div className={isDark ? 'text-gray-500' : 'text-gray-400'}>Cargando datos...</div>
-        </div>
-      </div>
-    );
-  }
-
-  // Prepare chart data with memoization
+  // Prepare chart data with memoization - must be before any returns (React hooks rule)
   const chartData = useMemo(() => {
     // Prepare historical data with change calculation
     const historicalData = history?.rates.map((r, i, arr) => {
@@ -137,6 +127,17 @@ export default function PredictionChart({ history, prediction, loading }: Predic
 
     return [...sampledHistorical, ...sampledPredictions];
   }, [history, prediction]);
+
+  // Loading state - after all hooks
+  if (loading && !history) {
+    return (
+      <div className={`rounded-xl p-6 h-96 ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
+        <div className="animate-pulse h-full flex items-center justify-center">
+          <div className={isDark ? 'text-gray-500' : 'text-gray-400'}>Cargando datos...</div>
+        </div>
+      </div>
+    );
+  }
 
   if (chartData.length === 0) {
     return (
