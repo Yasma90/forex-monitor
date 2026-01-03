@@ -1,15 +1,16 @@
 'use client';
 
-import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
+import { TrendingUp, TrendingDown, RefreshCw, ArrowLeftRight } from 'lucide-react';
 import { ExchangeRate } from '@/lib/api';
 
 interface ExchangeCardProps {
   rate: ExchangeRate | null;
   loading: boolean;
   onRefresh: () => void;
+  onSwap?: () => void;
 }
 
-export default function ExchangeCard({ rate, loading, onRefresh }: ExchangeCardProps) {
+export default function ExchangeCard({ rate, loading, onRefresh, onSwap }: ExchangeCardProps) {
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleString('es-ES', {
       dateStyle: 'medium',
@@ -24,9 +25,21 @@ export default function ExchangeCard({ rate, loading, onRefresh }: ExchangeCardP
       <div className="flex justify-between items-start mb-4">
         <div>
           <h2 className="text-sm font-medium text-gray-500">Tipo de Cambio</h2>
-          <p className="text-lg font-semibold text-gray-900">
-            {rate?.base_currency || 'USD'} / {rate?.target_currency || 'EUR'}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-lg font-semibold text-gray-900">
+              {rate?.base_currency || 'USD'} / {rate?.target_currency || 'EUR'}
+            </p>
+            {onSwap && (
+              <button
+                onClick={onSwap}
+                disabled={loading}
+                className="p-1.5 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50 group"
+                title="Invertir par"
+              >
+                <ArrowLeftRight className="w-4 h-4 text-blue-500 group-hover:text-blue-700" />
+              </button>
+            )}
+          </div>
         </div>
         <button
           onClick={onRefresh}

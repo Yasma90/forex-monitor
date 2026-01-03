@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { DollarSign, Euro, Bell, RefreshCw, Download } from 'lucide-react';
+import { DollarSign, Euro, Bell, RefreshCw, Download, ArrowLeftRight } from 'lucide-react';
 import ExchangeCard from '@/components/ExchangeCard';
 import PredictionChart from '@/components/PredictionChart';
 import StatsCard from '@/components/StatsCard';
@@ -29,6 +29,10 @@ import {
 import { registerServiceWorker, isPWAInstalled, showNotification } from '@/lib/notifications';
 
 export default function Home() {
+  // Currency pair state
+  const [baseCurrency, setBaseCurrency] = useState('USD');
+  const [targetCurrency, setTargetCurrency] = useState('EUR');
+
   // State
   const [rate, setRate] = useState<ExchangeRate | null>(null);
   const [history, setHistory] = useState<ExchangeRateHistory | null>(null);
@@ -47,6 +51,12 @@ export default function Home() {
   const [alertsPanelOpen, setAlertsPanelOpen] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [isInstalled, setIsInstalled] = useState(false);
+
+  // Swap currencies handler
+  const handleSwapCurrencies = useCallback(() => {
+    setBaseCurrency(targetCurrency);
+    setTargetCurrency(baseCurrency);
+  }, [baseCurrency, targetCurrency]);
 
   // Register service worker on mount
   useEffect(() => {
@@ -68,7 +78,7 @@ export default function Home() {
   const fetchRate = useCallback(async () => {
     try {
       setLoadingRate(true);
-      const data = await getCurrentRate();
+      const data = await getCurrentRate(baseCurrency, targetCurrency);
       setRate(data);
       setLastUpdate(new Date());
       setError(null);
@@ -78,19 +88,19 @@ export default function Home() {
     } finally {
       setLoadingRate(false);
     }
-  }, []);
+  }, [baseCurrency, targetCurrency]);
 
   const fetchHistory = useCallback(async () => {
     try {
       setLoadingHistory(true);
-      const data = await getRateHistory('USD', 'EUR', 30);
+      const data = await getRateHistory(baseCurrency, targetCurrency, 30);
       setHistory(data);
     } catch (err) {
       console.error('Error fetching history:', err);
     } finally {
       setLoadingHistory(false);
     }
-  }, []);
+  }, [baseCurrency, targetCurrency]);
 
   const fetchNews = useCallback(async () => {
     try {
@@ -140,7 +150,7 @@ export default function Home() {
   const handleRefresh = async () => {
     try {
       setLoadingRate(true);
-      await refreshRate();
+      await refreshRate(baseCurrency, targetCurrency);
       await Promise.all([
         fetchRate(),
         fetchHistory(),
@@ -209,7 +219,7 @@ export default function Home() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Forex Monitor</h1>
-                <p className="text-sm text-gray-500">USD/EUR con predicciones ML</p>
+                <p className="text-sm text-gray-500">{baseCurrency}/{targetCurrency} con predicciones ML</p>
               </div>
             </div>
 
@@ -272,6 +282,7 @@ export default function Home() {
               rate={rate}
               loading={loadingRate}
               onRefresh={handleRefresh}
+              onSwap={handleSwapCurrencies}
             />
             <StatsCard history={history} loading={loadingHistory} />
             <SentimentGauge summary={sentiment} loading={loadingNews} />
