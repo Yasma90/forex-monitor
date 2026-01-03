@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { DollarSign, Euro, Bell, RefreshCw, Download } from 'lucide-react';
+import { Bell, RefreshCw, Download, TrendingUp } from 'lucide-react';
 import ExchangeCard from '@/components/ExchangeCard';
 import PredictionChart from '@/components/PredictionChart';
 import StatsCard from '@/components/StatsCard';
@@ -11,6 +11,8 @@ import PredictionCard from '@/components/PredictionCard';
 import SignalBadge from '@/components/SignalBadge';
 import AlertsPanel from '@/components/AlertsPanel';
 import ExportMenu from '@/components/ExportMenu';
+import CurrencySelector, { CURRENCIES } from '@/components/CurrencySelector';
+import DaysSelector from '@/components/DaysSelector';
 import {
   getCurrentRate,
   getRateHistory,
@@ -33,6 +35,7 @@ export default function Home() {
   // Currency pair state
   const [baseCurrency, setBaseCurrency] = useState('USD');
   const [targetCurrency, setTargetCurrency] = useState('EUR');
+  const [historyDays, setHistoryDays] = useState(30);
 
   // State
   const [rate, setRate] = useState<ExchangeRate | null>(null);
@@ -94,14 +97,14 @@ export default function Home() {
   const fetchHistory = useCallback(async () => {
     try {
       setLoadingHistory(true);
-      const data = await getRateHistory(baseCurrency, targetCurrency, 30);
+      const data = await getRateHistory(baseCurrency, targetCurrency, historyDays);
       setHistory(data);
     } catch (err) {
       console.error('Error fetching history:', err);
     } finally {
       setLoadingHistory(false);
     }
-  }, [baseCurrency, targetCurrency]);
+  }, [baseCurrency, targetCurrency, historyDays]);
 
   const fetchNews = useCallback(async () => {
     try {
@@ -209,26 +212,15 @@ export default function Home() {
         {/* Header */}
         <header className="mb-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-green-600" />
-                </div>
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center -ml-2">
-                  <Euro className="w-6 h-6 text-blue-600" />
-                </div>
-              </div>
-              <div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-8 h-8 text-blue-600" />
                 <h1 className="text-2xl font-bold text-gray-900">Forex Monitor</h1>
-                <p className="text-sm text-gray-500">{baseCurrency}/{targetCurrency} con predicciones ML</p>
               </div>
+              <SignalBadge signal={signal} loading={loadingPrediction} compact />
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Quick Signal Badge */}
-              <SignalBadge signal={signal} loading={loadingPrediction} compact />
-
-              {/* Install PWA button */}
               {installPrompt && !isInstalled && (
                 <button
                   onClick={handleInstall}
@@ -243,6 +235,7 @@ export default function Home() {
               <ExportMenu
                 baseCurrency={baseCurrency}
                 targetCurrency={targetCurrency}
+                days={historyDays}
                 disabled={loadingHistory}
               />
 
@@ -266,8 +259,20 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Currency & Period Selectors */}
+          <div className="flex items-end justify-between flex-wrap gap-4 mt-4">
+            <CurrencySelector
+              baseCurrency={baseCurrency}
+              targetCurrency={targetCurrency}
+              onBaseChange={setBaseCurrency}
+              onTargetChange={setTargetCurrency}
+              onSwap={handleSwapCurrencies}
+            />
+            <DaysSelector value={historyDays} onChange={setHistoryDays} />
+          </div>
+
           {lastUpdate && (
-            <p className="text-xs text-gray-400 mt-2">
+            <p className="text-xs text-gray-400 mt-3">
               Ultima actualizacion: {lastUpdate.toLocaleString('es-ES')}
               {isInstalled && <span className="ml-2 text-purple-500">(PWA)</span>}
             </p>
@@ -289,7 +294,6 @@ export default function Home() {
               rate={rate}
               loading={loadingRate}
               onRefresh={handleRefresh}
-              onSwap={handleSwapCurrencies}
             />
             <StatsCard history={history} loading={loadingHistory} />
             <SentimentGauge summary={sentiment} loading={loadingNews} />
