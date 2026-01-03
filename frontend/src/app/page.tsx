@@ -13,6 +13,7 @@ import AlertsPanel from '@/components/AlertsPanel';
 import ExportMenu from '@/components/ExportMenu';
 import CurrencySelector, { CURRENCIES } from '@/components/CurrencySelector';
 import DaysSelector from '@/components/DaysSelector';
+import ThemeToggle from '@/components/ThemeToggle';
 import {
   getCurrentRate,
   getRateHistory,
@@ -207,24 +208,26 @@ export default function Home() {
   }, [fetchRate, fetchHistory, fetchNews, fetchPrediction, handleCheckAlerts]);
 
   return (
-    <main className="min-h-screen p-4 md:p-6 bg-gray-50">
+    <main className="min-h-screen p-4 md:p-6 bg-gray-50 dark:bg-gray-900 transition-colors">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header className="mb-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-8 h-8 text-blue-600" />
-                <h1 className="text-2xl font-bold text-gray-900">Forex Monitor</h1>
+                <TrendingUp className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Forex Monitor</h1>
               </div>
               <SignalBadge signal={signal} loading={loadingPrediction} compact />
             </div>
 
             <div className="flex items-center gap-2">
+              <ThemeToggle />
+
               {installPrompt && !isInstalled && (
                 <button
                   onClick={handleInstall}
-                  className="flex items-center gap-1 px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+                  className="flex items-center gap-1 px-3 py-2 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
                   title="Instalar app"
                 >
                   <Download className="w-4 h-4" />
@@ -242,7 +245,7 @@ export default function Home() {
               <button
                 onClick={handleRefresh}
                 disabled={loadingRate}
-                className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
                 title="Actualizar todo"
               >
                 <RefreshCw className={`w-4 h-4 ${loadingRate ? 'animate-spin' : ''}`} />
@@ -272,16 +275,16 @@ export default function Home() {
           </div>
 
           {lastUpdate && (
-            <p className="text-xs text-gray-400 mt-3">
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
               Ultima actualizacion: {lastUpdate.toLocaleString('es-ES')}
-              {isInstalled && <span className="ml-2 text-purple-500">(PWA)</span>}
+              {isInstalled && <span className="ml-2 text-purple-500 dark:text-purple-400">(PWA)</span>}
             </p>
           )}
         </header>
 
         {/* Error message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
             {error}
           </div>
         )}
@@ -319,7 +322,7 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-8 text-center text-sm text-gray-400">
+        <footer className="mt-8 text-center text-sm text-gray-400 dark:text-gray-500">
           <p>Cambio: Frankfurter (BCE) | Noticias: GNews/NewsData | ML: Prophet/Trend</p>
           <p>Actualizacion: Tasa 5min | Noticias 30min | Prediccion 1h</p>
         </footer>
