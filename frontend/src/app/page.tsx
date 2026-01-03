@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { DollarSign, Euro, Bell, RefreshCw, Download, ArrowLeftRight } from 'lucide-react';
+import { DollarSign, Euro, Bell, RefreshCw, Download, ArrowLeftRight, FileDown } from 'lucide-react';
 import ExchangeCard from '@/components/ExchangeCard';
 import PredictionChart from '@/components/PredictionChart';
 import StatsCard from '@/components/StatsCard';
@@ -14,6 +14,7 @@ import {
   getCurrentRate,
   getRateHistory,
   refreshRate,
+  exportToCSV,
   getNewsFeed,
   getSentimentSummary,
   getPrediction,
@@ -172,6 +173,15 @@ export default function Home() {
     }
   };
 
+  const handleExportCSV = async () => {
+    try {
+      await exportToCSV(baseCurrency, targetCurrency, 30);
+    } catch (err) {
+      console.error('Error exporting CSV:', err);
+      setError('Error al exportar CSV');
+    }
+  };
+
   useEffect(() => {
     // Initial fetch
     fetchRate();
@@ -238,6 +248,16 @@ export default function Home() {
                   <span className="hidden sm:inline text-sm">Instalar</span>
                 </button>
               )}
+
+              <button
+                onClick={handleExportCSV}
+                disabled={loadingHistory}
+                className="flex items-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors disabled:opacity-50"
+                title="Exportar datos a CSV"
+              >
+                <FileDown className="w-4 h-4" />
+                <span className="hidden sm:inline text-sm">CSV</span>
+              </button>
 
               <button
                 onClick={handleRefresh}

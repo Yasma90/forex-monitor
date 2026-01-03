@@ -1,6 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
+import csv
+import io
+from datetime import datetime
 
 from ...models.database import get_db
 from ...models.exchange import ExchangeRateResponse, ExchangeRateCreate, ExchangeRateHistoryResponse
@@ -147,6 +151,51 @@ async def refresh_rate(
         await fetcher.close()
 
     raise HTTPException(status_code=503, detail="Failed to refresh rate")
+
+
+@router.get("/export/csv")
+async def export_to_csv(
+    base: str = Query(default="USD", description="Base currency code"),
+    target: str = Query(default="EUR", description="Target currency code"),
+    days: int = Query(default=30, ge=1, le=365, description="Number of days of history"),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Export historical exchange rates to CSV file.
+    """
+    repo = ExchangeRateRepository(db)
+    rates = await repo.get_history(base, target, days)
+
+    if not rates:
+        raise HTTPException(status_code=404, detail="No historical data available")
+
+    # Create CSV in memory
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # Header
+    writer.writerow(["Date", "Base", "Target", "Rate", "Source"])
+
+    # Data rows
+    for rate in rates:
+        writer.writerow([
+            rate.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+            rate.base_currency,
+            rate.target_currency,
+            rate.rate,
+            rate.source
+        ])
+
+    output.seek(0)
+
+    # Generate filename with date
+    filename = f"forex_{base}_{target}_{days}d_{datetime.now().strftime('%Y%m%d')}.csv"
+
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
 
 
 def _is_stale(timestamp, max_age_minutes: int = 30) -> bool:

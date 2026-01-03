@@ -62,6 +62,38 @@ export async function refreshRate(
   return res.json();
 }
 
+export async function exportToCSV(
+  base: string = 'USD',
+  target: string = 'EUR',
+  days: number = 30
+): Promise<void> {
+  const res = await fetch(
+    `${API_BASE}/api/exchange/export/csv?base=${base}&target=${target}&days=${days}`
+  );
+  if (!res.ok) {
+    throw new Error('Failed to export CSV');
+  }
+
+  // Get filename from Content-Disposition header or generate default
+  const disposition = res.headers.get('Content-Disposition');
+  let filename = `forex_${base}_${target}_${days}d.csv`;
+  if (disposition) {
+    const match = disposition.match(/filename=(.+)/);
+    if (match) filename = match[1];
+  }
+
+  // Download the file
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+}
+
 // News API types
 export interface NewsArticle {
   id: number;
