@@ -80,4 +80,4 @@ dist/
 *.tmp
 .npmrc
 nul
-settings.local.json
+.claude/
