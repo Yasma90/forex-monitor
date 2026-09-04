@@ -1,78 +1,115 @@
-# Guia de Contribucion
+# Contributing Guide
 
-Gracias por tu interes en contribuir a Forex Monitor. Esta guia te ayudara a comenzar.
+Thank you for your interest in contributing to **Forex Monitor**! This guide will help you get started.
 
-## Codigo de Conducta
+---
 
-Este proyecto sigue un codigo de conducta de respeto mutuo. Se espera que todos los contribuidores:
-- Sean respetuosos y constructivos
-- Acepten criticas constructivas
-- Se enfoquen en lo mejor para la comunidad
+## Code of Conduct
 
-## Como Contribuir
+This project follows a mutual-respect code of conduct. All contributors are expected to:
+- Be respectful and constructive in all interactions
+- Accept constructive criticism gracefully
+- Focus on what is best for the community
 
-### Reportar Bugs
+---
 
-1. Verifica que el bug no haya sido reportado previamente en [Issues](../../issues)
-2. Crea un nuevo issue con:
-   - Descripcion clara del problema
-   - Pasos para reproducir
-   - Comportamiento esperado vs actual
-   - Screenshots si aplica
-   - Entorno (OS, version Python/Node, navegador)
+## Branching Model — Git Flow
 
-### Sugerir Features
+This project uses **[Git Flow](https://nvie.com/posts/a-successful-git-branching-model/)**. Please follow this model strictly:
 
-1. Revisa el README para ver features planeados
-2. Abre un issue con etiqueta `enhancement`
-3. Describe el caso de uso y beneficio
+```
+main          ←─── production-ready code, tagged releases only
+  ↑
+release/x.y.z ←─── release preparation (version bump, changelog)
+  ↑
+develop       ←─── integration branch, all feature PRs target here
+  ↑
+feature/*     ←─── new features (branched from develop)
+hotfix/*      ←─── urgent fixes branched from main
+```
+
+| Branch prefix | Branched from | Merges into | Purpose |
+|---|---|---|---|
+| `feature/*` | `develop` | `develop` | New features |
+| `bugfix/*` | `develop` | `develop` | Non-urgent bug fixes |
+| `release/*` | `develop` | `main` + `develop` | Release preparation |
+| `hotfix/*` | `main` | `main` + `develop` | Critical production fixes |
+
+> [!IMPORTANT]
+> **Always branch from `develop`**, never from `main`. Pull Requests must target `develop`.
+
+---
+
+## How to Contribute
+
+### Reporting Bugs
+
+1. Check that the bug has not already been reported in [Issues](../../issues)
+2. Create a new issue using the **Bug Report** template with:
+   - Clear description of the problem
+   - Steps to reproduce
+   - Expected vs actual behaviour
+   - Screenshots if applicable
+   - Environment (OS, Python/Node version, browser)
+
+### Suggesting Features
+
+1. Review the [README](README.md) roadmap for planned features
+2. Open an issue using the **Feature Request** template with label `enhancement`
+3. Describe the use case and the benefit it brings
 
 ### Pull Requests
 
-1. Fork el repositorio
-2. Crea una rama desde `main`:
+1. Fork the repository
+2. Create a branch **from `develop`**:
    ```bash
-   git checkout -b feature/mi-feature
+   git checkout develop
+   git pull origin develop
+   git checkout -b feature/my-feature
    ```
-3. Realiza tus cambios siguiendo las guias de estilo
-4. Asegurate de que los tests pasen:
+3. Make your changes following the style guides below
+4. Ensure all tests pass:
    ```bash
    cd backend && pytest tests/ -v
    ```
-5. Commit con mensajes descriptivos:
+5. Commit with descriptive messages following [Conventional Commits](https://www.conventionalcommits.org/):
    ```bash
-   git commit -m "feat: agregar soporte para EUR/GBP"
+   git commit -m "feat: add EUR/GBP pair support"
    ```
-6. Push y crea el Pull Request
+6. Push and open a Pull Request **targeting `develop`**
 
-## Estructura del Proyecto
+---
+
+## Project Structure
 
 ```
 forex-monitor/
-├── backend/           # API Python FastAPI
+├── backend/           # Python FastAPI API
 │   ├── app/
-│   │   ├── api/       # Endpoints REST
-│   │   ├── models/    # Modelos SQLAlchemy
-│   │   ├── services/  # Logica de negocio
-│   │   └── jobs/      # Tareas programadas
-│   └── tests/         # Tests unitarios
-├── frontend/          # UI Next.js React
+│   │   ├── api/       # REST endpoints
+│   │   ├── models/    # SQLAlchemy models
+│   │   ├── services/  # Business logic
+│   │   └── jobs/      # Scheduled tasks
+│   └── tests/         # Unit tests
+├── frontend/          # Next.js + React UI
 │   ├── src/
-│   │   ├── app/       # Paginas
-│   │   ├── components/# Componentes React
-│   │   └── lib/       # Utilidades
-│   └── public/        # Assets estaticos
-└── docs/              # Documentacion
+│   │   ├── app/       # Pages (App Router)
+│   │   ├── components/# React components
+│   │   └── lib/       # Utilities / API client
+│   └── public/        # Static assets
+└── docs/              # Extended documentation
 ```
 
-## Guias de Estilo
+---
+
+## Style Guides
 
 ### Python (Backend)
 
-- Seguir PEP 8
-- Type hints en funciones publicas
-- Docstrings en clases y funciones principales
-- Nombres descriptivos en snake_case
+- Follow [PEP 8](https://pep8.org/)
+- Use type hints on all public functions
+- Add docstrings to classes and main functions
+- Use descriptive names in `snake_case`
 
 ```python
 async def get_exchange_rate(
@@ -80,23 +117,23 @@ async def get_exchange_rate(
     target: str = "EUR"
 ) -> ExchangeRate:
     """
-    Obtiene la tasa de cambio actual.
+    Fetch the current exchange rate.
 
     Args:
-        base: Moneda base (default USD)
-        target: Moneda objetivo (default EUR)
+        base: Base currency (default USD)
+        target: Target currency (default EUR)
 
     Returns:
-        ExchangeRate con la tasa actual
+        ExchangeRate with the current rate
     """
     ...
 ```
 
 ### TypeScript (Frontend)
 
-- Usar TypeScript estricto
-- Interfaces para props de componentes
-- Nombres en camelCase para variables, PascalCase para componentes
+- Use strict TypeScript
+- Define interfaces for component props
+- `camelCase` for variables and functions, `PascalCase` for components
 
 ```typescript
 interface ExchangeCardProps {
@@ -109,35 +146,47 @@ export function ExchangeCard({ rate, onRefresh }: ExchangeCardProps) {
 }
 ```
 
-### Commits
+### Commit Messages
 
-Seguir Conventional Commits:
-- `feat:` Nueva funcionalidad
-- `fix:` Correccion de bug
-- `docs:` Documentacion
-- `style:` Formato (no afecta logica)
-- `refactor:` Refactorizacion
-- `test:` Tests
-- `chore:` Mantenimiento
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-## Desarrollo Local
+| Prefix | When to use |
+|---|---|
+| `feat:` | New functionality |
+| `fix:` | Bug fix |
+| `docs:` | Documentation changes |
+| `style:` | Formatting (no logic change) |
+| `refactor:` | Code refactoring |
+| `test:` | Adding or updating tests |
+| `chore:` | Maintenance, dependencies |
+| `ci:` | CI/CD pipeline changes |
 
-### Requisitos
-- Python 3.10+
-- Node.js 18+
-- npm o yarn
+---
+
+## Local Development
+
+### Requirements
+| Dependency | Version |
+|---|---|
+| Python | 3.10+ |
+| Node.js | 18+ |
+| npm | 9+ |
 
 ### Setup
 
 ```bash
-# Clonar repositorio
-git clone https://github.com/tu-usuario/forex-monitor.git
+# Clone the repository
+git clone https://github.com/Yasma90/forex-monitor.git
 cd forex-monitor
 
-# Backend
+# Backend — create virtual environment
 cd backend
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
+source venv/bin/activate
+
 pip install -r requirements.txt
 
 # Frontend
@@ -145,14 +194,14 @@ cd ../frontend
 npm install
 ```
 
-### Ejecutar en desarrollo
+### Run in development mode
 
 ```bash
-# Terminal 1 - Backend
+# Terminal 1 — Backend
 cd backend
 uvicorn app.main:app --reload --port 8000
 
-# Terminal 2 - Frontend
+# Terminal 2 — Frontend
 cd frontend
 npm run dev
 ```
@@ -160,35 +209,38 @@ npm run dev
 ### Tests
 
 ```bash
-# Backend
+# Backend — run all tests
 cd backend
 pytest tests/ -v
 
-# Con cobertura
+# With coverage report
 pytest tests/ --cov=app --cov-report=html
 ```
 
-## Areas de Contribucion
+---
 
-### Alta Prioridad
-- [ ] Autenticacion de usuarios (JWT)
-- [ ] Soporte multi-divisa
-- [ ] Tests de integracion
+## Areas for Contribution
 
-### Media Prioridad
-- [ ] Modo oscuro
-- [ ] Exportar datos CSV
-- [ ] Calendario economico
+### High Priority
+- [ ] User authentication (JWT)
+- [ ] Multi-currency support
+- [ ] Integration / E2E tests (Playwright)
 
-### Documentacion
-- [ ] Traducir a ingles
-- [ ] Agregar ejemplos de API
-- [ ] Video tutorial
+### Medium Priority
+- [ ] Dark mode
+- [ ] CSV/Excel data export
+- [ ] Economic calendar
 
-## Preguntas
-
-Si tienes preguntas, abre un issue con etiqueta `question` o contacta a los maintainers.
+### Documentation
+- [ ] Add API usage examples
+- [ ] Video tutorial / demo GIF
 
 ---
 
-Gracias por contribuir!
+## Questions
+
+If you have questions, open an issue with the label `question` or contact the maintainers.
+
+---
+
+*Thank you for contributing to Forex Monitor!* 🚀
