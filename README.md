@@ -1,38 +1,46 @@
-# Forex Monitor - USD/EUR
+# Forex Monitor — USD/EUR
 
-Monitor de tipo de cambio USD/EUR con predicciones ML, analisis de sentimiento y alertas.
+> Real-time USD/EUR exchange rate monitor with ML predictions, sentiment analysis, and smart alerts.
 
-## Caracteristicas Implementadas
+[![CI](https://github.com/Yasma90/forex-monitor/actions/workflows/ci.yml/badge.svg)](https://github.com/Yasma90/forex-monitor/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](CHANGELOG.md)
 
-- **Tipo de cambio en tiempo real** - Datos del BCE actualizados cada 30 min
-- **Grafico historico** - Visualiza tendencias de hasta 365 dias
-- **Predicciones ML** - Pronostico a 7 y 30 dias con intervalo de confianza
-- **Analisis de sentimiento** - Noticias financieras con scoring BULLISH/BEARISH/NEUTRAL
-- **Senales de trading** - Indicadores basados en tendencia, momentum y sentimiento
-- **Sistema de alertas** - 5 tipos de alertas con notificaciones push
-- **PWA Ready** - Instalable en movil como app nativa
-- **Backtesting** - Evaluacion de precision de predicciones
-- **Cache inteligente** - Sistema de cache con TTL para optimizar rendimiento
-- **Scheduler** - Tareas programadas para actualizacion automatica
+---
 
-## Inicio Rapido (Windows)
+## Features
 
-### Opcion 1: Script automatico
+- **Real-time exchange rate** — ECB data updated every 30 min via Frankfurter API
+- **Historical chart** — Visualise trends up to 365 days
+- **ML Predictions** — 7 and 30-day forecast with confidence intervals
+- **Sentiment analysis** — Financial news scored as BULLISH / BEARISH / NEUTRAL
+- **Trading signals** — Indicators based on trend, momentum and sentiment
+- **Alert system** — 5 alert types with browser push notifications
+- **PWA Ready** — Installable on mobile as a native app
+- **Backtesting** — Evaluate prediction accuracy against historical data
+- **Smart cache** — In-memory cache with configurable TTL
+- **Scheduler** — Background tasks for automatic data refresh
+
+---
+
+## Quick Start (Windows)
+
+### Option 1: Automatic script
 ```bash
 cd forex-monitor
 start-dev.bat
 ```
 
-### Opcion 2: Manual
+### Option 2: Manual
 
-**Terminal 1 - Backend:**
+**Terminal 1 — Backend:**
 ```bash
 cd backend
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-**Terminal 2 - Frontend:**
+**Terminal 2 — Frontend:**
 ```bash
 cd frontend
 npm install
@@ -40,52 +48,58 @@ npm run dev
 ```
 
 ### URLs
-- **Frontend:** http://localhost:3000
-- **Backend API:** http://localhost:8000
-- **API Docs (Swagger):** http://localhost:8000/docs
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:8000 |
+| API Docs (Swagger) | http://localhost:8000/docs |
 
-## Configuracion de APIs (Opcional)
+---
 
-Crear archivo `backend/.env`:
+## API Configuration (Optional)
+
+Create a `backend/.env` file:
 
 ```env
-# Noticias (opcional - mejora el analisis de sentimiento)
-GNEWS_API_KEY=tu_key_de_gnews.io
-NEWSDATA_API_KEY=tu_key_de_newsdata.io
+# News (optional — improves sentiment analysis)
+GNEWS_API_KEY=your_gnews_key
+NEWSDATA_API_KEY=your_newsdata_key
 
-# Exchange rate backup (opcional)
-EXCHANGERATE_API_KEY=tu_key
+# Exchange rate backup (optional)
+EXCHANGERATE_API_KEY=your_key
 ```
 
-**Sin API keys:** La app funciona con APIs gratuitas sin key (Frankfurter para cambio).
+**Without API keys:** The app works out of the box using free APIs with no key required (Frankfurter for exchange rates).
 
-## Estructura del Proyecto
+---
+
+## Project Structure
 
 ```
 forex-monitor/
 ├── backend/                    # Python FastAPI
 │   ├── app/
-│   │   ├── api/routes/        # Endpoints REST
+│   │   ├── api/routes/        # REST endpoints
 │   │   │   ├── exchange.py    # /api/exchange/*
 │   │   │   ├── news.py        # /api/news/*
 │   │   │   ├── prediction.py  # /api/prediction/*
 │   │   │   ├── alerts.py      # /api/alerts/*
-│   │   │   └── system.py      # /api/system/* (cache, scheduler, metrics)
+│   │   │   └── system.py      # /api/system/*
 │   │   ├── models/            # SQLAlchemy + Pydantic
-│   │   │   ├── exchange.py    # Modelo de tasas de cambio
-│   │   │   ├── news.py        # Modelo de noticias
-│   │   │   ├── alert.py       # Modelo de alertas
-│   │   │   └── database.py    # Configuracion BD
+│   │   │   ├── exchange.py
+│   │   │   ├── news.py
+│   │   │   ├── alert.py
+│   │   │   └── database.py
 │   │   ├── services/
 │   │   │   ├── exchange/      # Fetcher, Repository
 │   │   │   ├── news/          # Fetcher, Sentiment, Keywords
 │   │   │   ├── prediction/    # Engine, Signals, Backtesting
 │   │   │   ├── alerts/        # Service, Checker
-│   │   │   └── cache.py       # Sistema de cache en memoria
+│   │   │   └── cache.py       # In-memory cache
 │   │   ├── jobs/
-│   │   │   └── scheduler.py   # Tareas programadas
+│   │   │   └── scheduler.py   # Scheduled tasks
 │   │   └── main.py
-│   ├── tests/                 # Tests unitarios
+│   ├── tests/                 # Unit tests
 │   │   ├── test_cache.py
 │   │   ├── test_sentiment.py
 │   │   ├── test_scheduler.py
@@ -104,174 +118,222 @@ forex-monitor/
 │   │   │   └── AlertsPanel.tsx
 │   │   └── lib/
 │   │       ├── api.ts         # API client
-│   │       └── notifications.ts # Push notifications
+│   │       └── notifications.ts
 │   ├── public/
 │   │   ├── sw.js              # Service Worker
 │   │   └── manifest.json      # PWA manifest
 │   └── package.json
-└── data/                       # SQLite database
+├── data/                       # SQLite database
+├── docs/                       # Extended documentation
+├── .github/
+│   ├── workflows/ci.yml       # GitHub Actions CI
+│   └── PULL_REQUEST_TEMPLATE.md
+└── docker-compose.yml
 ```
+
+---
 
 ## API Endpoints
 
 ### Exchange Rate
-- `GET /api/exchange/rate` - Tasa actual con cambio 24h
-- `GET /api/exchange/history?days=30` - Historico
-- `POST /api/exchange/refresh` - Forzar actualizacion
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/exchange/rate` | Current rate with 24h change |
+| `GET` | `/api/exchange/history?days=30` | Historical data |
+| `POST` | `/api/exchange/refresh` | Force data refresh |
 
 ### News
-- `GET /api/news/feed` - Noticias con sentimiento
-- `GET /api/news/sentiment-summary` - Resumen BULLISH/BEARISH/NEUTRAL
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/news/feed` | News with sentiment scores |
+| `GET` | `/api/news/sentiment-summary` | BULLISH / BEARISH / NEUTRAL summary |
 
 ### Prediction
-- `GET /api/prediction/forecast?days=30` - Prediccion completa con intervalos
-- `GET /api/prediction/signal` - Senal rapida
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/prediction/forecast?days=30` | Full forecast with confidence intervals |
+| `GET` | `/api/prediction/signal` | Quick trading signal |
 
 ### Alerts
-- `GET /api/alerts` - Listar alertas
-- `POST /api/alerts` - Crear alerta
-- `PUT /api/alerts/{id}` - Actualizar alerta
-- `DELETE /api/alerts/{id}` - Eliminar alerta
-- `GET /api/alerts/history` - Historial de alertas disparadas
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/alerts` | List alerts |
+| `POST` | `/api/alerts` | Create alert |
+| `PUT` | `/api/alerts/{id}` | Update alert |
+| `DELETE` | `/api/alerts/{id}` | Delete alert |
+| `GET` | `/api/alerts/history` | Triggered alerts history |
 
 ### System
-- `GET /api/system/cache/stats` - Estadisticas de cache
-- `POST /api/system/cache/clear` - Limpiar cache
-- `GET /api/system/scheduler/status` - Estado del scheduler
-- `GET /api/system/prediction/accuracy` - Precision de predicciones
-- `POST /api/system/prediction/backtest` - Ejecutar backtesting
-- `GET /api/system/metrics` - Metricas del sistema
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/system/cache/stats` | Cache statistics |
+| `POST` | `/api/system/cache/clear` | Clear cache |
+| `GET` | `/api/system/scheduler/status` | Scheduler status |
+| `GET` | `/api/system/prediction/accuracy` | Prediction accuracy |
+| `POST` | `/api/system/prediction/backtest` | Run backtesting |
+| `GET` | `/api/system/metrics` | System metrics |
 
-## ML/Predicciones
+---
 
-### Modelo por defecto (sin dependencias extras)
-- Analisis de tendencia con regresion lineal
-- Suavizado exponencial para corto plazo
-- Ajuste por sentimiento de noticias
+## ML / Predictions
 
-### Modelo avanzado (opcional)
+### Default model (no extra dependencies)
+- Linear regression trend analysis
+- Exponential smoothing for short-term
+- News sentiment adjustment
+
+### Advanced model (optional)
 ```bash
 pip install prophet
 ```
-- Facebook Prophet para series temporales
-- Mejor deteccion de estacionalidad
-- Mayor precision en predicciones
+- Facebook Prophet for time series
+- Better seasonality detection
+- Higher prediction accuracy
 
-## APIs Gratuitas Utilizadas
+---
 
-| API | Uso | Limite |
-|-----|-----|--------|
-| Frankfurter | Tipo de cambio (BCE) | Ilimitado |
-| ExchangeRate-API | Backup | 1500/mes |
-| GNews | Noticias | 100/dia |
-| NewsData | Noticias backup | 200/dia |
+## Free APIs Used
 
-## Fases Completadas
+| API | Purpose | Limit |
+|---|---|---|
+| [Frankfurter](https://www.frankfurter.app/) | Exchange rate (ECB) | Unlimited |
+| [ExchangeRate-API](https://www.exchangerate-api.com/) | Backup | 1 500/month |
+| [GNews](https://gnews.io/) | News | 100/day |
+| [NewsData](https://newsdata.io/) | News backup | 200/day |
 
-- [x] **Fase 1:** MVP - Tipo de cambio + Grafico
-- [x] **Fase 2:** Noticias + Analisis de sentimiento
-- [x] **Fase 3:** Predicciones ML + Senales
-- [x] **Fase 4:** Alertas + PWA completo
-- [x] **Fase 5:** Refinamiento y optimizacion
-  - [x] Sistema de cache con TTL
-  - [x] Backtesting de predicciones
-  - [x] Scheduler para tareas automaticas
-  - [x] Tests unitarios (63 tests)
-  - [x] Indices de BD optimizados
-  - [x] Limpieza automatica de datos antiguos
+---
 
-## Sistema de Alertas
+## Alert System
 
-### Tipos de alertas disponibles
-- **Precio sube a...** - Se activa cuando el tipo de cambio supera un umbral
-- **Precio baja a...** - Se activa cuando el tipo de cambio cae bajo un umbral
-- **Cambio % en 24h** - Se activa si hay un movimiento mayor al X% en el dia
-- **Cambio de sentimiento** - Se activa ante cambios en el sentimiento de noticias
-- **Noticias de impacto** - Se activa ante noticias de alto impacto
+### Alert types
+| Type | Trigger |
+|---|---|
+| Price rises to... | Rate exceeds a threshold |
+| Price falls to... | Rate drops below a threshold |
+| % change in 24h | Movement greater than X% in a day |
+| Sentiment change | News sentiment shifts |
+| High-impact news | High-impact news detected |
 
-### Caracteristicas
-- Alertas recurrentes o de una sola vez
-- Cooldown configurable entre activaciones
-- Notificaciones push en el navegador
-- Verificacion automatica cada 5 minutos
+### Features
+- Recurring or one-shot alerts
+- Configurable cooldown between triggers
+- Browser push notifications
+- Automatic check every 5 minutes
+
+---
 
 ## PWA (Progressive Web App)
 
-La aplicacion se puede instalar como app nativa:
-- En Chrome/Edge: Clic en "Instalar" en la barra de direcciones o boton morado
-- En Safari iOS: Compartir > Agregar a pantalla de inicio
-- Funciona offline con datos en cache
-- Recibe notificaciones push
+Install as a native app:
+- **Chrome / Edge:** Click "Install" in the address bar or the purple button
+- **Safari iOS:** Share → Add to Home Screen
+- Works offline with cached data
+- Receives push notifications
+
+---
 
 ## Tests
 
-Ejecutar tests unitarios:
+Run unit tests:
 ```bash
 cd backend
 pytest tests/ -v
 ```
 
-Cobertura: 63 tests cubriendo cache, sentiment, scheduler y alerts.
+With coverage report:
+```bash
+pytest tests/ --cov=app --cov-report=html
+```
 
-## Requisitos
-
-- Python 3.10+
-- Node.js 18+
-- npm o yarn
-
----
-
-## Documentacion
-
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - Arquitectura del sistema y decisiones tecnicas
-- [API.md](docs/API.md) - Documentacion completa de la API REST
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Guia para contribuidores
-- [CHANGELOG.md](CHANGELOG.md) - Historial de cambios por version
+Coverage: 63 tests covering cache, sentiment, scheduler and alerts.
 
 ---
 
-## Mejoras Futuras y Features Pendientes
+## Requirements
 
-### Alta Prioridad
-- [ ] **Invertir monedas** - Ver EUR/USD ademas de USD/EUR con un click
-- [ ] **Selector de pares** - Elegir entre multiples pares (USD/EUR por defecto)
-- [ ] **Soporte multi-divisa** - Agregar EUR/GBP, USD/JPY, GBP/USD, etc.
-- [ ] **Autenticacion de usuarios** - Login con JWT/OAuth para alertas personalizadas
-- [ ] **Notificaciones por email** - Alertas via correo ademas de push
-- [ ] **Dashboard de metricas** - Panel visual de precision de predicciones
+| Dependency | Version |
+|---|---|
+| Python | 3.10+ |
+| Node.js | 18+ |
+| npm | 9+ |
 
-### Media Prioridad
-- [ ] **Modelo ML mejorado** - Integrar LSTM o Transformer para predicciones
-- [ ] **Calendario economico** - Mostrar eventos Fed/BCE programados
-- [ ] **Correlaciones** - Analizar correlacion con otros activos (oro, S&P500)
-- [ ] **Modo oscuro** - Theme switcher en la interfaz
-- [ ] **Exportar datos** - Descargar historico en CSV/Excel
-- [ ] **Webhook para alertas** - Enviar notificaciones a URLs externas
+---
 
-### Baja Prioridad
-- [ ] **App nativa** - React Native o Flutter para iOS/Android
-- [ ] **API publica** - Documentacion para integraciones de terceros
-- [ ] **Widgets** - Mini-widgets para embeber en otras webs
-- [ ] **Comparativa historica** - Comparar periodos (este mes vs anterior)
-- [ ] **Machine Learning en tiempo real** - Reentrenamiento automatico del modelo
+## Completed Phases
 
-### Deuda Tecnica
-- [ ] **Tests de integracion** - Tests E2E con Playwright
-- [ ] **CI/CD** - Pipeline con GitHub Actions
-- [ ] **Docker Compose** - Despliegue simplificado
-- [ ] **Monitoreo** - Integracion con Prometheus/Grafana
-- [ ] **Rate limiting** - Proteccion contra abuso de API
-- [ ] **Actualizacion Next.js** - Actualizar a version con parche de seguridad
+- [x] **Phase 1:** MVP — Exchange rate + Chart
+- [x] **Phase 2:** News + Sentiment analysis
+- [x] **Phase 3:** ML Predictions + Signals
+- [x] **Phase 4:** Alerts + Full PWA
+- [x] **Phase 5:** Refinement & optimisation
+  - [x] In-memory cache with TTL
+  - [x] Prediction backtesting
+  - [x] Background task scheduler
+  - [x] 63 unit tests
+  - [x] Optimised DB indexes
+  - [x] Automatic cleanup of old data
 
-### Optimizaciones
-- [ ] **PostgreSQL** - Migrar de SQLite para produccion
-- [ ] **Redis** - Cache distribuido para multiples instancias
-- [ ] **CDN** - Assets estaticos en CDN
-- [ ] **WebSockets** - Actualizaciones en tiempo real sin polling
+---
+
+## Roadmap
+
+### High Priority
+- [ ] **Currency swap** — View EUR/USD in addition to USD/EUR with one click
+- [ ] **Pair selector** — Choose between multiple pairs (USD/EUR default)
+- [ ] **Multi-currency support** — EUR/GBP, USD/JPY, GBP/USD, etc.
+- [ ] **User authentication** — JWT/OAuth login for personalised alerts
+- [ ] **Email notifications** — Alerts via email in addition to push
+
+### Medium Priority
+- [ ] **Improved ML model** — LSTM or Transformer integration
+- [ ] **Economic calendar** — Display scheduled Fed/ECB events
+- [ ] **Correlations** — Analyse correlation with other assets (gold, S&P500)
+- [ ] **Data export** — Download history as CSV/Excel
+- [ ] **Alert webhooks** — Send notifications to external URLs
+
+### Low Priority
+- [ ] **Native app** — React Native or Flutter for iOS/Android
+- [ ] **Public API** — Third-party integration documentation
+- [ ] **Widgets** — Mini-widgets to embed in other sites
+- [ ] **Historical comparison** — Compare periods (this month vs previous)
+
+### Technical Debt
+- [ ] **Integration tests** — E2E tests with Playwright
+- [x] **CI/CD** — GitHub Actions pipeline
+- [ ] **Monitoring** — Prometheus/Grafana integration
+- [ ] **Rate limiting** — API abuse protection
+- [ ] **PostgreSQL** — Migrate from SQLite for production
+- [ ] **Redis** — Distributed cache for multiple instances
+- [ ] **WebSockets** — Real-time updates without polling
+
+---
+
+## Documentation
+
+| File | Description |
+|---|---|
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture and technical decisions |
+| [API.md](docs/API.md) | Full REST API documentation |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contributor guide |
+| [CHANGELOG.md](CHANGELOG.md) | Version history |
+
+---
+
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to submit pull requests, report bugs, and suggest features. We follow [Git Flow](https://nvie.com/posts/a-successful-git-branching-model/) and [Conventional Commits](https://www.conventionalcommits.org/).
+
+---
+
+## License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+Copyright (c) 2026 Yasmany Reyes González
 
 ---
 
 ## Disclaimer
 
-Las predicciones son indicativas, no garantias. Los mercados forex son volatiles.
-Use esta informacion como herramienta complementaria, no como unica referencia para decisiones financieras.
+Predictions are indicative, not guaranteed. Forex markets are volatile.
+Use this tool as a complementary reference, not as the sole basis for financial decisions.

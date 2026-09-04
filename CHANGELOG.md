@@ -1,97 +1,132 @@
 # Changelog
 
-Todos los cambios notables en este proyecto seran documentados aqui.
+All notable changes to this project will be documented in this file.
 
-El formato esta basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
-y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2024-12-21
-
-### Agregado - Fase 5: Refinamiento
-- Sistema de cache en memoria con TTL configurable
-- Servicio de backtesting para evaluar precision de predicciones
-- Scheduler de tareas en background (refresh rate, check alerts, cleanup)
-- 63 tests unitarios (cache, sentiment, scheduler, alerts)
-- Indices optimizados en base de datos
-- Limpieza automatica de datos antiguos
-- Endpoints de sistema (`/api/system/*`) para monitoreo
-- Documentacion profesional (README, CONTRIBUTING, CHANGELOG)
-
-### Mejorado
-- Queries de base de datos optimizadas con indices compuestos
-- Insercion batch de articulos de noticias
-- Metodo `get_daily_rates()` para consultas eficientes de largo plazo
-
-## [0.4.0] - 2024-12-20
-
-### Agregado - Fase 4: Alertas + PWA
-- Sistema de alertas con 5 tipos:
-  - Precio sube/baja a umbral
-  - Cambio porcentual en 24h
-  - Cambio de sentimiento
-  - Noticias de alto impacto
-- Modelo de alertas con cooldown y recurrencia
-- AlertChecker para verificacion automatica
-- Historial de alertas disparadas
-- Notificaciones push en navegador (Web Push API)
-- Service Worker para PWA
-- Manifest.json para instalacion como app
-- Componente AlertsPanel en frontend
-- Soporte offline con cache de assets
-
-## [0.3.0] - 2024-12-19
-
-### Agregado - Fase 3: Predicciones ML
-- Motor de predicciones con soporte Prophet (opcional)
-- Modelo fallback basado en tendencia + suavizado exponencial
-- Ajuste de predicciones por sentimiento de noticias
-- Generador de senales de trading (BULLISH/BEARISH/NEUTRAL)
-- Intervalos de confianza en predicciones
-- Endpoints `/api/prediction/forecast` y `/api/prediction/signal`
-- Componentes PredictionChart y PredictionCard
-- SignalBadge con indicadores visuales
-
-## [0.2.0] - 2024-12-18
-
-### Agregado - Fase 2: Noticias + Sentimiento
-- Fetcher de noticias multi-fuente (GNews, NewsData)
-- Analizador de sentimiento basado en lexico financiero
-- 100+ palabras clave financieras (Fed, BCE, inflation, etc.)
-- Filtrado de noticias por relevancia forex
-- Modelo NewsArticle con scores de sentimiento
-- Endpoints `/api/news/feed` y `/api/news/sentiment-summary`
-- Componentes NewsFeed y SentimentGauge
-
-## [0.1.0] - 2024-12-17
-
-### Agregado - Fase 1: MVP
-- Backend FastAPI con SQLAlchemy async
-- Fetcher de tipo de cambio (Frankfurter API como principal)
-- APIs de backup (ExchangeRate-API)
-- Base de datos SQLite con modelo ExchangeRate
-- Historico de tasas de cambio
-- Estadisticas (min, max, avg por periodo)
-- Frontend Next.js 14 con App Router
-- Componente ExchangeCard con tasa actual
-- Grafico historico con Recharts
-- Diseno responsive con Tailwind CSS
-- API client TypeScript tipado
+## [Unreleased]
 
 ---
 
-## Proximas Versiones
+## [0.1.0] - 2026-09-04
 
-### [1.1.0] - Planificado
-- Invertir monedas (EUR/USD ademas de USD/EUR)
-- Selector de pares de divisas
-- Soporte para EUR/GBP, USD/JPY, etc.
+First structured release under Git Flow. Establishes baseline documentation,
+CI pipeline, and correct branching conventions.
 
-### [1.2.0] - Planificado
-- Autenticacion de usuarios
-- Alertas personalizadas por usuario
-- Sincronizacion entre dispositivos
+### Added
+- MIT License with correct copyright holder (Yasmany Reyes González)
+- GitHub Actions CI pipeline (backend pytest + frontend lint/build)
+- Pull Request template (`.github/PULL_REQUEST_TEMPLATE.md`)
+- Bug report and feature request issue templates
+- Git Flow branching model documentation in CONTRIBUTING.md
+- Version badges and License badge in README.md
 
-### [2.0.0] - Futuro
-- Modelo ML mejorado (LSTM/Transformer)
-- Calendario economico integrado
-- App movil nativa
+### Changed
+- Full translation of README, CONTRIBUTING and CHANGELOG to English
+- Updated CONTRIBUTING to reference `develop` as the base branch for feature work
+- Production branch renamed from `master` to `main`
+- Copyright year updated to 2026
+
+### Fixed
+- `.gitignore` now correctly excludes `.claude/` directory
+
+---
+
+## Historical Versions (pre-Git Flow)
+
+> The following entries predate the Git Flow workflow and are kept for historical reference.
+
+## [1.0.0] - 2024-12-21
+
+### Added — Phase 5: Refinement
+- In-memory cache with configurable TTL
+- Backtesting service to evaluate prediction accuracy
+- Background task scheduler (rate refresh, alert checker, cleanup)
+- 63 unit tests (cache, sentiment, scheduler, alerts)
+- Optimised database indexes
+- Automatic cleanup of old data
+- System endpoints (`/api/system/*`) for monitoring
+- Professional documentation (README, CONTRIBUTING, CHANGELOG)
+
+### Changed
+- Database queries optimised with composite indexes
+- Batch insert for news articles
+- `get_daily_rates()` method for efficient long-range queries
+
+## [0.4.0] - 2024-12-20
+
+### Added — Phase 4: Alerts + PWA
+- Alert system with 5 types:
+  - Price rises/falls to threshold
+  - Percentage change in 24h
+  - Sentiment change
+  - High-impact news
+- Alert model with cooldown and recurrence support
+- AlertChecker for automatic verification
+- Triggered alert history
+- Browser push notifications (Web Push API)
+- Service Worker for PWA
+- `manifest.json` for app installation
+- AlertsPanel frontend component
+- Offline support with asset cache
+
+## [0.3.0] - 2024-12-19
+
+### Added — Phase 3: ML Predictions
+- Prediction engine with optional Prophet support
+- Fallback model based on trend + exponential smoothing
+- Sentiment-adjusted predictions
+- Trading signal generator (BULLISH / BEARISH / NEUTRAL)
+- Confidence intervals in predictions
+- `/api/prediction/forecast` and `/api/prediction/signal` endpoints
+- PredictionChart and PredictionCard components
+- SignalBadge with visual indicators
+
+## [0.2.0] - 2024-12-18
+
+### Added — Phase 2: News + Sentiment
+- Multi-source news fetcher (GNews, NewsData)
+- Lexicon-based sentiment analyser
+- 100+ financial keywords (Fed, ECB, inflation, etc.)
+- Forex-relevance news filtering
+- NewsArticle model with sentiment scores
+- `/api/news/feed` and `/api/news/sentiment-summary` endpoints
+- NewsFeed and SentimentGauge components
+
+## [0.1.0-alpha] - 2024-12-17
+
+### Added — Phase 1: MVP
+- FastAPI backend with async SQLAlchemy
+- Exchange rate fetcher (Frankfurter API as primary source)
+- Backup APIs (ExchangeRate-API)
+- SQLite database with ExchangeRate model
+- Exchange rate history
+- Statistics (min, max, avg per period)
+- Next.js 14 frontend with App Router
+- ExchangeCard component with current rate
+- Historical chart with Recharts
+- Responsive design with Tailwind CSS
+- Typed TypeScript API client
+
+---
+
+## Planned Versions
+
+### [0.2.0] — Planned
+- Currency swap (EUR/USD in addition to USD/EUR)
+- Currency pair selector
+- Support for EUR/GBP, USD/JPY, etc.
+
+### [0.3.0] — Planned
+- User authentication
+- User-specific alerts
+- Cross-device synchronisation
+
+### [1.0.0] — Future
+- Improved ML model (LSTM/Transformer)
+- Integrated economic calendar
+- Native mobile app
+
+[Unreleased]: https://github.com/Yasma90/forex-monitor/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Yasma90/forex-monitor/releases/tag/v0.1.0
