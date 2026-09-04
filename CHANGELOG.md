@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 First structured release under Git Flow. Establishes baseline documentation,
 CI pipeline, and correct branching conventions.
 
+
 ### Added
 - MIT License with correct copyright holder (Yasmany Reyes González)
 - GitHub Actions CI pipeline (backend pytest + frontend lint/build)
